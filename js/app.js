@@ -112,14 +112,14 @@
 		soundContext = new AudioContext();
 		bufferLoader = new BufferLoader(soundContext,
 			[
-				'sounds/note1.mp3',
-				'sounds/note2.mp3',
-				'sounds/note3.mp3',
-				'sounds/note4.mp3',
-				'sounds/note5.mp3',
-				'sounds/note6.mp3',
-				'sounds/note7.mp3',
-				'sounds/note8.mp3'
+				'sounds/note1.ogg',
+				'sounds/note2.ogg',
+				'sounds/note3.ogg',
+				'sounds/note4.ogg',
+				'sounds/note5.ogg',
+				'sounds/note6.ogg',
+				'sounds/note7.ogg',
+				'sounds/note8.ogg'
 			],
 			finishedLoading
 		);
@@ -146,7 +146,7 @@
 		var source = soundContext.createBufferSource();
 		source.buffer = obj.note.buffer;
 		source.connect(soundContext.destination);
-		source.noteOn(0);
+		source.start(0);
 		obj.ready = false;
 		// throttle the note
 		setTimeout(setNoteReady, 400, obj);
