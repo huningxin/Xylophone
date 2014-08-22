@@ -143,6 +143,14 @@ video {
     margin-top: -240px;
 }
 
+#canvas-shadow {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+}
+
 #canvas-source {
     display: none;
     position: absolute;

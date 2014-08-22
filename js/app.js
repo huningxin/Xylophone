@@ -2,6 +2,7 @@
 
 	var content = $('#content');
 	var video = $('#webcam')[0];
+	var canvasShadow = document.getElementById("canvas-shadow");
 	var handtracker;
 	var previousFinger;
 	var currentFinger;
@@ -167,12 +168,14 @@
 		$('.loading').fadeOut();
 		$('body').addClass('black-background');
 		$(".instructions").delay(600).fadeIn();
-		$(canvasSource).delay(600).fadeIn();
+		$(canvasShadow).delay(600).fadeIn();
+		//$(canvasSource).delay(600).fadeIn();
 		$(canvasBlended).delay(600).fadeIn();
 		$("#xylo").delay(600).fadeIn();
 		$(".motion-cam").delay(600).fadeIn();
 
 		handtracker = new HT.Tracker({depthThreshold: DEPTH_THRESHOLD, fast: true, fingers: true});
+		ShadowRenderer(video, canvasShadow);
 
 		updateFinger();
 	}

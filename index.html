@@ -17,8 +17,8 @@
 
 	<div id="content">
 
+		<canvas id="canvas-shadow" width="640" height="480"></canvas>
 		<video id="webcam" muted autoplay width="640" height="480"></video>
-
 		<canvas id="canvas-source" width="640" height="480"></canvas>
 		<canvas id="canvas-blended" width="640" height="480"></canvas>
 		<canvas id="canvas-mask" width="640" height="480" style="display:none"></canvas>
@@ -61,6 +61,8 @@
 
 <script src="js/libs/jquery.js"></script>
 <script src="js/libs/buffer-loader.js"></script>
+<script src="js/libs/utils.js"></script>
+<script src="js/ShadowRenderer.js"></script>
 <script src="js/app.js"></script>
 <script type="text/javascript" src="js-handtracking/src/cv.js"></script> 
 <script type="text/javascript" src="js-handtracking/src/handtracking.js"></script> 
