@@ -21,7 +21,8 @@
 
 		<canvas id="canvas-source" width="640" height="480"></canvas>
 		<canvas id="canvas-blended" width="640" height="480"></canvas>
-		<div class="motion-cam">Motion cam</div>
+		<canvas id="canvas-mask" width="640" height="480" style="display:none"></canvas>
+		<div class="motion-cam">Hand</div>
 
 		<div id="xylo">
 			<div id="back"></div>
@@ -61,6 +62,8 @@
 <script src="js/libs/jquery.js"></script>
 <script src="js/libs/buffer-loader.js"></script>
 <script src="js/app.js"></script>
+<script type="text/javascript" src="js-handtracking/src/cv.js"></script> 
+<script type="text/javascript" src="js-handtracking/src/handtracking.js"></script> 
 
 <script type="text/javascript">
 

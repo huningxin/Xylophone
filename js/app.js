@@ -2,6 +2,12 @@
 
 	var content = $('#content');
 	var video = $('#webcam')[0];
+	var handtracker;
+	var previousFinger;
+	var currentFinger;
+	var foundFinger = false;
+	var DEPTH_THRESHOLD = 100;
+	var MOVE_THRESHOLD = 5;
 
 	var resize = function() {
 		var w = $(this).width();
@@ -60,12 +66,12 @@
 	};
 
 	if (navigator.getUserMedia) {
-		navigator.getUserMedia({audio: true, video: true}, function(stream) {
+		navigator.getUserMedia({audio: true, video: { 'mandatory': { 'depth': true}}}, function(stream) {
 			video.src = stream;
 			initialize();
 		}, webcamError);
 	} else if (navigator.webkitGetUserMedia) {
-		navigator.webkitGetUserMedia({audio:true, video:true}, function(stream) {
+		navigator.webkitGetUserMedia({audio:true, video: { 'mandatory': { 'depth': true}}}, function(stream) {
 			video.src = window.webkitURL.createObjectURL(stream);
 			initialize();
 		}, webcamError);
@@ -165,7 +171,10 @@
 		$(canvasBlended).delay(600).fadeIn();
 		$("#xylo").delay(600).fadeIn();
 		$(".motion-cam").delay(600).fadeIn();
-		update();
+
+		handtracker = new HT.Tracker({depthThreshold: DEPTH_THRESHOLD, fast: true, fingers: true});
+
+		updateFinger();
 	}
 
 	window.requestAnimFrame = (function(){
@@ -187,8 +196,84 @@
 //		timeOut = setTimeout(update, 1000/60);
 	}
 
+	function updateFinger() {
+		drawVideo();
+		trackHand();
+		drawHand();
+		checkAreasForFinger();
+		requestAnimFrame(updateFinger);
+	}
+
 	function drawVideo() {
 		contextSource.drawImage(video, 0, 0, video.width, video.height);
+	}
+
+	function createImageFromMask(mask, imageDst){
+      var src = mask.data, dst = imageDst.data,
+          width = mask.width, span = 4 * width,
+          len = src.length, i = 0, j = 0, k = 0;
+      
+      for(i = 0; i < len; i += 1){
+          dst[k] = dst[k + 1] = dst[k + 2] = src[i];
+          dst[k + 3] = 255;
+          k += 4;
+      }
+      
+      return imageDst;
+    };
+
+    function drawHand() {
+    	var width = canvasBlended.width;
+		var height = canvasBlended.height;
+
+		contextBlended.clearRect(0, 0, width, height);
+
+    	var blendedData = contextBlended.createImageData(width, height);
+        contextBlended.putImageData(createImageFromMask(handtracker.mask, blendedData), 0, 0);
+
+        if (foundFinger) {
+		    contextBlended.strokeStyle = "rgb(255,0,0)";
+		    contextBlended.lineWidth = 4;
+		    contextBlended.strokeRect(currentFinger.x - 6, currentFinger.y - 6, 12, 12);
+		}
+    }
+
+	function trackHand() {
+		var width = canvasSource.width;
+		var height = canvasSource.height;
+		// get webcam image data
+		foundFinger = false;
+		var sourceData = contextSource.getImageData(0, 0, width, height);
+		var candidate = handtracker.detect(sourceData);
+      	if (candidate && candidate.fingers && candidate.fingers.length > 0) {
+      		previousFinger = currentFinger;
+        	currentFinger = candidate.fingers.sort(function(a, b) { return a.y - b.y; })[0];
+        	foundFinger = true;
+        }
+	}
+
+	function checkAreasForFinger() {
+		if (typeof previousFinger != 'undefined') {
+			if (Math.abs(currentFinger.x - previousFinger.x) > MOVE_THRESHOLD ||
+				Math.abs(currentFinger.y - previousFinger.y) > MOVE_THRESHOLD) {
+				for (var r=0; r<8; ++r) {
+					var note_x0 = 1/8*r*video.width;
+					var note_x1 = 1/8*(r+1)*video.width;
+					if (currentFinger.x > note_x0 && currentFinger.x < note_x1 && currentFinger.y < 100) {
+						// over a small limit, consider that a movement is detected
+						// play a note and show a visual feedback to the user
+						playSound(notes[r]);
+		//				notes[r].visual.show();
+		//				notes[r].visual.fadeOut();
+						if(!notes[r].visual.is(':animated')) {
+							notes[r].visual.css({opacity:1});
+							notes[r].visual.animate({opacity:0}, 700);
+						}
+					}
+				}
+
+			}
+		}
 	}
 
 	function blend() {
