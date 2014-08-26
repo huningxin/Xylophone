@@ -68,12 +68,12 @@
 	};
 
 	if (navigator.getUserMedia) {
-		navigator.getUserMedia({audio: true, video: { 'mandatory': { 'depth': true}}}, function(stream) {
+		navigator.getUserMedia({video: { 'mandatory': { 'depth': true}}}, function(stream) {
 			video.src = stream;
 			initialize();
 		}, webcamError);
 	} else if (navigator.webkitGetUserMedia) {
-		navigator.webkitGetUserMedia({audio:true, video: { 'mandatory': { 'depth': true}}}, function(stream) {
+		navigator.webkitGetUserMedia({video: { 'mandatory': { 'depth': true}}}, function(stream) {
 			video.src = window.webkitURL.createObjectURL(stream);
 			initialize();
 		}, webcamError);
