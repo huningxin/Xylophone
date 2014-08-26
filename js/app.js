@@ -6,6 +6,7 @@
 	var handtracker;
 	var previousFinger;
 	var currentFinger;
+	var previousFoundFinger = false;
 	var foundFinger = false;
 	var DEPTH_THRESHOLD = 100;
 	var MOVE_THRESHOLD = 5;
@@ -172,7 +173,7 @@
 		//$(canvasSource).delay(600).fadeIn();
 		$(canvasBlended).delay(600).fadeIn();
 		$("#xylo").delay(600).fadeIn();
-		$(".motion-cam").delay(600).fadeIn();
+		//$(".motion-cam").delay(600).fadeIn();
 
 		handtracker = new HT.Tracker({depthThreshold: DEPTH_THRESHOLD, fast: true, fingers: true});
 		ShadowRenderer(video, canvasShadow);
@@ -245,6 +246,7 @@
 		var width = canvasSource.width;
 		var height = canvasSource.height;
 		// get webcam image data
+		previousFoundFinger = foundFinger;
 		foundFinger = false;
 		var sourceData = contextSource.getImageData(0, 0, width, height);
 		var candidate = handtracker.detect(sourceData);
@@ -252,6 +254,13 @@
       		previousFinger = currentFinger;
         	currentFinger = candidate.fingers.sort(function(a, b) { return a.y - b.y; })[0];
         	foundFinger = true;
+        }
+
+        if (previousFoundFinger != foundFinger) {
+        	if (foundFinger)
+        		$(".motion-cam").fadeIn();
+        	else
+        		$(".motion-cam").fadeOut();
         }
 	}
 

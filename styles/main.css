@@ -178,6 +178,7 @@ video {
     bottom: 24%;
     right: 0;
     width: 28%;
+    text-align: right;
     white-space: nowrap;
 }
 
