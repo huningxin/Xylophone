@@ -265,7 +265,7 @@
 	}
 
 	function checkAreasForFinger() {
-		if (typeof previousFinger != 'undefined') {
+		if (typeof previousFinger != 'undefined' && foundFinger) {
 			if (Math.abs(currentFinger.x - previousFinger.x) > MOVE_THRESHOLD ||
 				Math.abs(currentFinger.y - previousFinger.y) > MOVE_THRESHOLD) {
 				for (var r=0; r<8; ++r) {
