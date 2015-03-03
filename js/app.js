@@ -2,6 +2,7 @@
 
 	var content = $('#content');
 	var video = $('#webcam')[0];
+	var depth = $('#depth')[0];
 	var canvasShadow = document.getElementById("canvas-shadow");
 	var handtracker;
 	var previousFinger;
@@ -67,18 +68,16 @@
 		alert('Webcam error!', e);
 	};
 
-	if (navigator.getUserMedia) {
-		navigator.getUserMedia({video: { 'mandatory': { 'depth': true}}}, function(stream) {
-			video.src = stream;
-			initialize();
-		}, webcamError);
-	} else if (navigator.webkitGetUserMedia) {
-		navigator.webkitGetUserMedia({video: { 'mandatory': { 'depth': true}}}, function(stream) {
-			video.src = window.webkitURL.createObjectURL(stream);
-			initialize();
+	if (navigator.webkitGetUserMedia) {
+		navigator.webkitGetUserMedia({video: true}, function(color_stream) {
+			video.src = window.webkitURL.createObjectURL(color_stream);
+			navigator.webkitGetUserMedia({video: { 'mandatory': { 'depth': "aligned"}}}, function(depth_stream) {
+				depth.src = window.webkitURL.createObjectURL(depth_stream);
+				initialize();
+			}, webcamError);
 		}, webcamError);
 	} else {
-		//video.src = 'somevideo.webm'; // fallback.
+		console.log("getUserMedia is not supported.")
 	}
 
 	var AudioContext = (
@@ -176,7 +175,10 @@
 		//$(".motion-cam").delay(600).fadeIn();
 
 		handtracker = new HT.Tracker({depthThreshold: DEPTH_THRESHOLD, fast: true, fingers: true, simple: true});
-		ShadowRenderer(video, canvasShadow);
+
+		// Set rendering mode.
+		// ShadowRenderer(depth, true, canvasShadow);
+		ShadowRenderer(video, false, canvasShadow);
 
 		updateFinger();
 	}
@@ -209,7 +211,7 @@
 	}
 
 	function drawVideo() {
-		contextSource.drawImage(video, 0, 0, video.width, video.height);
+		contextSource.drawImage(depth, 0, 0, depth.width, depth.height);
 	}
 
 	function createImageFromMask(mask, imageDst){

@@ -1,4 +1,4 @@
-function ShadowRenderer(video, canvas) {
+function ShadowRenderer(video, depth, canvas) {
   //check support
   if (!supportsWebGL()) {
     console.log("no WebGL");
@@ -24,6 +24,7 @@ function ShadowRenderer(video, canvas) {
         samplerLocation = gl.getUniformLocation(program, 'sampler0'),
         positionLocation = gl.getAttribLocation(program, 'position'),
         mirrorLocation = gl.getUniformLocation(program, 'mirror'),
+        renderingLocation = gl.getUniformLocation(program, 'depth_rendering'),
         buffer = gl.createBuffer(),
         vertices = [-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1],
         //vertices = [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,  1.0, 1.0, 0.0, 1.0,  1.0],
@@ -63,6 +64,13 @@ function ShadowRenderer(video, canvas) {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+
+      if (depth) {
+        gl.uniform1f(renderingLocation, 1.0);
+      } else {
+        gl.uniform1f(renderingLocation, 0.0);
+      }
+
       //draw rectangle
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       gl.bindTexture(gl.TEXTURE_2D, null);
