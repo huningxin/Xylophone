@@ -36,6 +36,15 @@ HT.Tracker = function(params) {
 HT.Tracker.prototype.detect = function(image) {
   this.skinner.mask(image, this.mask);
 
+  if (typeof this.params.simple != 'undefined' &&
+      this.params.simple == true) {
+    var candidate = {fingers: []};
+    if (this.mask.top.y != Infinity) {
+      candidate.fingers.push(this.mask.top);
+    }
+    return candidate;
+  }
+
   if (this.params.fast || true) {
     this.blackBorder(this.mask);
   } else {
@@ -51,12 +60,25 @@ HT.Tracker.prototype.detect = function(image) {
     candidate.fingerGraph = this.fingerGraph;
     candidate.fingers = this.fingers;
   }
-  //this.gestureDetector.onFrame(candidate);
+  this.gestureDetector.onFrame(candidate);
   return candidate;
 };
 
 HT.Tracker.prototype.detectMultiple = function(image) {
   this.skinner.mask(image, this.mask);
+
+  if (typeof this.params.simple != 'undefined' &&
+      this.params.simple == true) {
+    var candidates = [];
+    this.skinner.mask(image, this.mask);
+    if (this.mask.top.y != Infinity) {
+      var candidate = {fingers: []};
+      candidate.fingers.push(this.mask.top);
+      candidates.push(candidate);
+    }
+    return candidates;
+  }
+
   this.blackBorder(this.mask);
   this.contours = CV.findContours(this.mask);
 
@@ -342,7 +364,7 @@ HT.Candidate = function(contour){
 };
 
 HT.Skinner = function(params){
-  this.params = params || {depthThreshold: 100};
+  this.params = params || {depthThreshold: 70};
 };
 
 HT.Skinner.prototype.mask = function(imageSrc, imageDst) {
@@ -352,6 +374,8 @@ HT.Skinner.prototype.mask = function(imageSrc, imageDst) {
   var gravity_x = 0, gravity_y = 0;
   var pts = 0;
   var width = imageSrc.width;
+  var top = {x: Infinity, y: Infinity};
+
   for (; i < len; i += 4) {
     v = src[i];
     value = 0;
@@ -363,6 +387,11 @@ HT.Skinner.prototype.mask = function(imageSrc, imageDst) {
       gravity_x += x;
       gravity_y += y;
       pts++;
+
+      if (y < top.y) {
+        top.x = x;
+        top.y = y;
+      }
     }
 
     dst[j++] = value;
@@ -376,6 +405,7 @@ HT.Skinner.prototype.mask = function(imageSrc, imageDst) {
     x: gravity_x,
     y: gravity_y
   };
+  imageDst.top = top;
   imageDst.origin = imageSrc;
   return imageDst;
 };
